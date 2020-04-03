@@ -1,0 +1,7 @@
+{
+    "token": "TOKEN",
+    "server_executable":"./run",
+    "member_role": 0,
+    "minimum_connected":2,
+    "notification_channel":0
+}
