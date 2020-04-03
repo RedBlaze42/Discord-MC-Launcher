@@ -75,7 +75,7 @@ async def on_member_update(before,after):
                 send_mc_message("Arrêt annulé")
         else:
             return None
-    elif(count_players()>=config["minimum_connected"] and not server_on):
+    elif(count_players(members)>=config["minimum_connected"] and not server_on):
         launch_server()
         time_to_stop==0
         channel.send("Lancement du serveur par "+" ".join(["<@{}>".format(str(player.id)) for player in list_players()]))
