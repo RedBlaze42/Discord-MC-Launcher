@@ -15,7 +15,7 @@ def cmdFile(cmd):
 	os.system(str(cmd)+">tmp 2>&1")
 	with open('tmp',"r") as file:
 		data=file.read().split("\n")
-	os.system("rm tmp")
+	os.remove("tmp")
 	return data
 
 def launch_server():
