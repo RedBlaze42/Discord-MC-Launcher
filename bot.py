@@ -110,7 +110,7 @@ async def on_message(message):
         elif args[0]=="members_count" and len(args)>1:
             config["minimum_connected"]=int(args[1])
             save_config()
-            await message.channel.send("Minimum members connected set to `{}`".format(config["members_count"]))
+            await message.channel.send("Minimum members connected set to `{}`".format(config["minimum_connected"]))
         else:
             embed=discord.Embed(title="Minecraft launcher bot config",colour=discord.Colour(0x0000))
             embed.description="""**!mine setchannel** to set the notification channel, currently set to: <#{channel}>
