@@ -44,7 +44,7 @@ def list_players(members):
     return [member for member in members if is_playing(member)]
 
 def count_players(members):
-    return len(list_players())
+    return len(list_players(members))
 
 def is_server_running():
     return "mc_server" in cmdFile("screen -ls")
