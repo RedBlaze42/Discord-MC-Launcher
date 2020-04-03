@@ -5,6 +5,7 @@ from time import time
 from asyncio import sleep
 
 bot=discord.Client()
+
 with open("config.json","r") as file:
     config=json.load(file)
 
@@ -19,23 +20,23 @@ def cmdFile(cmd):
 	return data
 
 def launch_server():
-    cmd="screen -dmS mc_server "+config["server_executable"]
-    print(cmd)
-    os.system(cmd)
+    if not is_server_running():
+        cmd='screen -S mc_server -dm  bash -c "{}"'.format(config["server_executable"])
+        print(cmd)
+        os.system(cmd)
 
 def send_mc_message(msg):
-    os.system('screen -S mc_server -p 0 -X mc_server "say {}^M"'.format(msg))
+    os.system('screen -S mc_server -X stuff "say {}^M"'.format(msg))
 
 def stop_server():
-    os.system('screen -S mc_server -p 0 -X mc_server "stop^M"')
+    if is_server_running(): os.system('screen -S mc_server -X stuff "stop^M"')
 
 def save_config():
     with open("config.json","w") as file:
         json.dump(config,file)
 
 def is_playing(member):
-    games=[activity.name for activity in member.activities if isinstance(activity,discord.Game)]
-    print(games)
+    games=[activity.name for activity in member.activities]
     for name in minecraft_names:
         if name in games: return True
 
@@ -48,7 +49,17 @@ def count_players(members):
     return len(list_players(members))
 
 def is_server_running():
-    return "mc_server" in cmdFile("screen -ls")
+    return "mc_server" in "\n".join(cmdFile("screen -ls"))
+
+def is_in_lock():
+    return os.path.exists("treshold.lock")
+
+def set_lock():
+    with open("treshold.lock","w") as lock:
+        lock.write(str(time()+config["treshold"]))
+
+def remove_lock():
+    if is_in_lock(): os.remove("treshold.lock")
 
 @bot.event
 async def on_member_update(before,after):
@@ -60,26 +71,30 @@ async def on_member_update(before,after):
     channel=guild.get_channel(config["notification_channel"])
 
     server_on=is_server_running()
-    if(count_players(members)<config["minimum_connected"] and server_on):
-        if time_to_stop==0:
+    if(count_players(members)<config["minimum_connected"] and is_server_running()):
+        if not is_in_lock():
+            set_lock()
+            time_to_stop=time()+config["treshold"]
+            print("Starting stopping")
             
-            time_to_stop=config["treshold"]+time()
             while(time()<time_to_stop and count_players(members)<config["minimum_connected"]):
-                sleep(5)
+                send_mc_message("Arrêt du serveur dans {} secondes".format(int(time_to_stop-time())))
+                await sleep(15)
 
             if count_players(members)<config["minimum_connected"]:
                 send_mc_message("Arrêt du serveur")
-                sleep(5)
+                await sleep(5)
                 stop_server()
-                channel.send("Serveur arrêté")
+                await channel.send("Serveur arrêté")
             else:
                 send_mc_message("Arrêt annulé")
+                remove_lock()
         else:
             return None
-    elif(count_players(members)>=config["minimum_connected"] and not server_on):
+    elif(count_players(members)>=config["minimum_connected"] and not is_server_running()):
         launch_server()
-        time_to_stop==0
-        channel.send("Lancement du serveur par "+" ".join(["<@{}>".format(str(player.id)) for player in list_players()]))
+        await channel.send("Lancement du serveur par "+" ".join(["<@{}>".format(str(player.id)) for player in list_players(members)]))
+        remove_lock()
 
 @bot.event
 async def on_message(message):
@@ -99,7 +114,7 @@ async def on_message(message):
         elif args[0]=="treshold" and len(args)>1:
             config["treshold"]=int(args[1])
             save_config()
-            await message.channel.send("Treshold set to `{}`".format(config["members_count"]))
+            await message.channel.send("Treshold set to `{}s`".format(config["treshold"]))
         elif args[0]=="role" and len(message.role_mentions)==1:
             config["member_role"]=message.role_mentions[0].id
             save_config()
@@ -127,4 +142,5 @@ async def on_message(message):
             embed.set_footer(text="Bot made by RedBlaze#0645")
             await message.channel.send(embed=embed)
 
+remove_lock()
 bot.run(config["token"])
