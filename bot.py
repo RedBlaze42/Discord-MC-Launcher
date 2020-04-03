@@ -35,6 +35,7 @@ def save_config():
 
 def is_playing(member):
     games=[activity.name for activity in member.activities if isinstance(activity,discord.Game)]
+    print(games)
     for name in minecraft_names:
         if name in games: return True
 
