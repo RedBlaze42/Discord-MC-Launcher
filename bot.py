@@ -104,7 +104,7 @@ async def on_message(message):
             save_config()
             await message.channel.send("Role set to @{}".format(message.role_mentions[0].name))
         elif args[0]=="server" and len(message.role_mentions)==1:
-            config["server_executable"]=args[1]
+            config["server_executable"]=" ".join(args[1:])
             save_config()
             await message.channel.send("Server executable set to `{}`".format(config["member_role"]))
         elif args[0]=="members_count" and len(args)>1:
