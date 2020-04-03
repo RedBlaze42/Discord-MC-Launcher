@@ -106,7 +106,7 @@ async def on_message(message):
         elif args[0]=="server" and len(args)>1:
             config["server_executable"]=" ".join(args[1:])
             save_config()
-            await message.channel.send("Server executable set to `{}`".format(config["member_role"]))
+            await message.channel.send("Server executable set to `{}`".format(config["server_executable"]))
         elif args[0]=="members_count" and len(args)>1:
             config["minimum_connected"]=int(args[1])
             save_config()
