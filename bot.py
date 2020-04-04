@@ -130,7 +130,10 @@ async def on_message(message):
             await message.channel.send("Minimum members connected set to `{}`".format(config["minimum_connected"]))
         elif args[0]=="state":
             if is_server_running():
-                await message.channel.send("✅ The server is online")
+                if(is_in_lock()):
+                    await message.channel.send("✅ The server is online but not enough members are connected")
+                else:
+                    await message.channel.send("✅ The server is online")
             else:
                 await message.channel.send("❌ The server is offline")
         else:
