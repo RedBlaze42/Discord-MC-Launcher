@@ -11,6 +11,7 @@ with open("config.json","r") as file:
 
 minecraft_names=["Minecraft"]
 time_to_stop=0
+screen_name="mc_server_"+config["token"][:4]
 
 def cmdFile(cmd):
 	os.system(str(cmd)+">tmp 2>&1")
@@ -21,15 +22,15 @@ def cmdFile(cmd):
 
 def launch_server():
     if not is_server_running():
-        cmd='screen -S mc_server -dm  bash -c "{}"'.format(config["server_executable"])
+        cmd='screen -S {} -dm  bash -c "{}"'.format(screen_name,config["server_executable"])
         print(cmd)
         os.system(cmd)
 
 def send_mc_message(msg):
-    os.system('screen -S mc_server -X stuff "say {}^M"'.format(msg))
+    os.system('screen -S {} -X stuff "say {}^M"'.format(screen_name,msg))
 
 def stop_server():
-    if is_server_running(): os.system('screen -S mc_server -X stuff "stop^M"')
+    if is_server_running(): os.system('screen -S {} -X stuff "stop^M"'.format(screen_name))
 
 def save_config():
     with open("config.json","w") as file:
@@ -49,7 +50,7 @@ def count_players(members):
     return len(list_players(members))
 
 def is_server_running():
-    return "mc_server" in "\n".join(cmdFile("screen -ls"))
+    return screen_name in "\n".join(cmdFile("screen -ls"))
 
 def is_in_lock():
     return os.path.exists("treshold.lock")
