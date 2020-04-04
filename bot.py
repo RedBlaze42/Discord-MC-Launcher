@@ -128,13 +128,19 @@ async def on_message(message):
             config["minimum_connected"]=int(args[1])
             save_config()
             await message.channel.send("Minimum members connected set to `{}`".format(config["minimum_connected"]))
+        elif args[0]=="state":
+            if is_server_running():
+                await message.channel.send("✅ The server is online")
+            else:
+                await message.channel.send("❌ The server is offline")
         else:
             embed=discord.Embed(title="Minecraft launcher bot config",colour=discord.Colour(0x0000))
             embed.description="""**!mine setchannel** to set the notification channel, currently set to: <#{channel}>
             **!mine treshold** to set the treshold in seconds, currently set to: `{treshold}s`
             **!mine members_count** to set minimum members connected, currently set to: `{members}`
             **!mine role** to set the minecraft players role (you need to mention it), currently set to: `{role}`
-            **!mine server** to set server launch command, currently set to: `{command}`""".format(
+            **!mine server** to set server launch command, currently set to: `{command}`
+            **!mine state** print the state of the server""".format(
                 treshold=config["treshold"],
                 members=config["minimum_connected"],
                 command=config["server_executable"],
