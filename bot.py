@@ -25,7 +25,6 @@ def launch_server():
         cmd='screen -S {} -dm  bash -c "{}"'.format(screen_name,config["server_executable"])
         print(cmd)
         os.system(cmd)
-
 def send_mc_message(msg):
     os.system('screen -S {} -X stuff "say {}^M"'.format(screen_name,msg))
 
@@ -65,7 +64,7 @@ def remove_lock():
 @bot.event
 async def on_member_update(before,after):
     if(config["member_role"]==0 or config["notification_channel"]==0):
-        await before.guild.channels[0].send("You need configure your bot using !mine config")
+        await before.guild.channels[0].send("You need configure your bot using __!mine config__")
         return False
     guild=before.guild
     members=guild.get_role(config["member_role"]).members
